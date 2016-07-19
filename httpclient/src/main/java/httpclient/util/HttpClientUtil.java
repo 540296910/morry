@@ -43,27 +43,9 @@ public class HttpClientUtil {
 
 	public String postClient(BasicCookieStore cookieStore, String url,
 			Map<String, String> param) {
-		BasicCookieStore cookie = new BasicCookieStore();
-	
-		List<Cookie> cookies1 = cookieStore.getCookies();
-		if (cookies1.isEmpty()){
-			cookie = cookieStore;
-		} else {
-			System.out.println(cookieStore.getCookies().get(0).getValue());
-			BasicClientCookie cook = new BasicClientCookie("JSESSIONID", cookieStore.getCookies().get(0).getValue());
-			cook.setDomain("10.37.88.61");
-			cook.setPath("/vform/");
-			cookie.addCookie(cook);
-		}
 		CloseableHttpClient httpclient = HttpClients.custom()
-				.setDefaultCookieStore(cookie).build();
+				.setDefaultCookieStore(cookieStore).build();
 		try {
-			// HttpUriRequest login = RequestBuilder
-			// .post()
-			// .setUri(new URI(
-			// "http://localhost:8080/scales/submit.htm"))
-			// .addParameter("username", "tgpms")
-			// .addParameter("password", "tgpmssmpgt").build();
 			RequestBuilder rb = RequestBuilder.post();
 			rb.addHeader("charset", "UTF-8");
 			rb.addHeader("Content-Type","application/x-www-form-urlencoded");
@@ -81,7 +63,6 @@ public class HttpClientUtil {
 			try {
 				HttpEntity entity = response2.getEntity();
 				System.out.println("contentType = " +entity.getContentType());
-				// System.out.println("Response content: " + EntityUtils.toString(entity, "UTF-8"));  
 				BufferedReader br = new BufferedReader(new InputStreamReader(
 						entity.getContent(), "UTF-8"), 8 * 1024);
 				StringBuilder entityStringBuilder = new StringBuilder();
