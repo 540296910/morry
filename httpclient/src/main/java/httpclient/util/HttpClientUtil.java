@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -36,6 +37,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.util.CharsetUtils;
 import org.apache.http.util.EntityUtils;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 
 import com.sun.xml.internal.messaging.saaj.packaging.mime.Header;
 
@@ -274,6 +276,66 @@ public class HttpClientUtil {
 		return null;
 	}
 	
+	public static void downloadImg(String url, String path) {
+		CloseableHttpClient httpClient = HttpClients.createDefault();
+		RequestBuilder rb = RequestBuilder.get();
+		rb.addHeader(
+				"User-Agent",
+				"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.84 Safari/537.36");
+		try {
+			rb.setUri(new URI(url));
+			HttpUriRequest get = rb.build();
+			CloseableHttpResponse response = httpClient.execute(get);
+			try {
+				HttpEntity entity = response.getEntity();
+				if (response.getStatusLine().getStatusCode() >= 400) {
+					throw new IOException("Got bad response, error code = "
+							+ response.getStatusLine().getStatusCode()
+							+ " imageUrl: " + url);
+				}
+				if (entity != null) {
+					InputStream input = entity.getContent();
+					if(path == null||"".equals(path)){
+						path = "d:\\";
+					}
+					File file = new File(path);
+					if(!file.exists()){
+						file.mkdirs();
+					}
+					OutputStream output = new FileOutputStream(new File(
+							path + "\\" + getImgName(url)));
+					IOUtils.copy(input, output);
+					output.flush();
+				}
+				EntityUtils.consume(entity);
+
+			} finally {
+				response.close();
+			}
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				httpClient.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+	}
+	
+	public static String getImgName(String url){
+		return url.substring(url.lastIndexOf("/")+1,url.length());
+	}
+	
 	public static void downloadimg(String url){
 		 System.out.println("获取Bing图片地址中……");
 
@@ -341,108 +403,7 @@ public class HttpClientUtil {
 
 	
 	public static void main(String[] args) throws Exception {
-		BasicCookieStore cookieStore = new BasicCookieStore();
-		CloseableHttpClient httpclient = HttpClients.custom()
-				.setDefaultCookieStore(cookieStore).build();
-		try {
-			HttpUriRequest login = RequestBuilder.post()
-					.setUri(new URI("http://localhost:8080/scales/submit.htm"))
-					.addParameter("username", "tgpms")
-					.addParameter("password", "tgpmssmpgt").build();
-			CloseableHttpResponse response2 = httpclient.execute(login);
-			try {
-				HttpEntity entity = response2.getEntity();
-				// System.out.println(response2
-				// .getHeaders("X-Content-Type-Options"));
-				// EntityUtils.consume(entity);
-				// System.out.println(response2);
-				BufferedReader br = new BufferedReader(new InputStreamReader(
-						entity.getContent(), "UTF-8"), 8 * 1024);
-				StringBuilder entityStringBuilder = new StringBuilder();
-				String line = null;
-				while ((line = br.readLine()) != null) {
-					entityStringBuilder.append(line + "/n");
-				}
-				System.out.println(entityStringBuilder.toString());
-				// System.out.println("Post logon cookies:");
-				List<Cookie> cookies = cookieStore.getCookies();
-				if (cookies.isEmpty()) {
-					System.out.println("None");
-				} else {
-					for (int i = 0; i < cookies.size(); i++) {
-						// System.out.println("- " + cookies.get(i).toString());
-					}
-				}
-				EntityUtils.consume(entity);
-			} finally {
-				response2.close();
-			}
-			System.out.println("********************");
-			HttpGet httpget = new HttpGet(
-					"http://localhost:8080/scales/scales/1.htm");
-			CloseableHttpResponse response1 = httpclient.execute(httpget);
-			try {
-				HttpEntity entity = response1.getEntity();
-
-				// System.out.println("Login form get: "
-				// + response1.getStatusLine());
-				// EntityUtils.consume(entity);
-				// System.out.println(response1);
-				// System.out.println("Initial set of cookies:");
-				BufferedReader br = new BufferedReader(new InputStreamReader(
-						entity.getContent(), "UTF-8"), 8 * 1024);
-				StringBuilder entityStringBuilder = new StringBuilder();
-				String line = null;
-				while ((line = br.readLine()) != null) {
-					entityStringBuilder.append(line + "/n");
-				}
-				System.out.println(entityStringBuilder.toString());
-				List<Cookie> cookies = cookieStore.getCookies();
-				if (cookies.isEmpty()) {
-					System.out.println("None");
-				} else {
-					for (int i = 0; i < cookies.size(); i++) {
-						System.out.println("- " + cookies.get(i).toString());
-					}
-				}
-				EntityUtils.consume(entity);
-
-			} finally {
-				response1.close();
-			}
-			System.out.println("********************");
-			HttpUriRequest scalesPut = RequestBuilder
-					.post()
-					.setUri(new URI(
-							"http://localhost:8080/scales/scales/put.htm"))
-					.addParameter("sacles_code", "010101")
-					.addParameter("sacles_name", "010101�Ű���").build();
-			CloseableHttpResponse resScalesP = httpclient.execute(scalesPut);
-			try {
-				HttpEntity entity = resScalesP.getEntity();
-				BufferedReader br = new BufferedReader(new InputStreamReader(
-						entity.getContent(), "UTF-8"), 8 * 1024);
-				StringBuilder entityStringBuilder = new StringBuilder();
-				String line = null;
-				while ((line = br.readLine()) != null) {
-					entityStringBuilder.append(line + "/n");
-				}
-				System.out.println(entityStringBuilder.toString());
-				// System.out.println("Post logon cookies:");
-				List<Cookie> cookies = cookieStore.getCookies();
-				if (cookies.isEmpty()) {
-					System.out.println("None");
-				} else {
-					for (int i = 0; i < cookies.size(); i++) {
-						// System.out.println("- " + cookies.get(i).toString());
-					}
-				}
-				EntityUtils.consume(entity);
-			} finally {
-				resScalesP.close();
-			}
-		} finally {
-			httpclient.close();
-		}
+		downloadImg("http://ww4.sinaimg.cn/mw690/9e5389bbjw1f5zop4pzc6j20c80gddg123.jpg", "d:\\http\\download\\img");
+//		System.out.println(getImgName("http://ww4.sinaimg.cn/mw690/9e5389bbjw1f5zop4pzc6j20c80gddgv.jpg"));
 	}
 }
