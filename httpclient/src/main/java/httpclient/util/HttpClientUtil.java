@@ -231,9 +231,11 @@ public class HttpClientUtil {
 			
 			rb.addHeader("Pragma","no-cache");
 			rb.addHeader("Upgrade-Insecure-Requests","1");*/
-			rb.addHeader("User-Agent","Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.84 Safari/537.36");
+//			rb.addHeader("User-Agent","Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.84 Safari/537.36");
+			rb.addHeader("User-Agent","User-Agent	Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)");
 			rb.addHeader("charset", "UTF-8");
-			rb.addHeader("Content-Type","application/x-www-form-urlencoded");
+			rb.addHeader("Connection","Keep-Alive");
+			rb.addHeader("Content-Type","text/html, application/xhtml+xml, */*");
 			rb.setUri(new URI(url));
 			if (param!=null&&!param.isEmpty()) {
 				Iterator<String> iter = param.keySet().iterator();
