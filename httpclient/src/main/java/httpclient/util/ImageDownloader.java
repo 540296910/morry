@@ -36,7 +36,10 @@ public class ImageDownloader {
 							+ response.getStatusLine().getStatusCode()
 							+ " imageUrl: " + url);
 				}
-				if (entity != null) {
+				long size = 10000l;
+				if (entity != null&&entity.getContentLength()>size) {
+					
+					System.out.println(entity.getContentLength()+" : "+url);
 					InputStream input = entity.getContent();
 					if (path == null || "".equals(path)) {
 						path = "d:\\";

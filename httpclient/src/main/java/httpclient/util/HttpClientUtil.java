@@ -319,6 +319,7 @@ public class HttpClientUtil {
 	
 	public String getClient(BasicCookieStore cookieStore, String url,
 			Map<String, String> param) throws Exception {
+		String html = null;
 		CloseableHttpClient httpclient = HttpClients.custom()
 				.setDefaultCookieStore(cookieStore).build();
 		try {
@@ -360,14 +361,15 @@ public class HttpClientUtil {
 				}
 				System.out.println(entityStringBuilder.length());
 				System.err.println(entityStringBuilder.toString());
-				List<Cookie> cookies = cookieStore.getCookies();
+				html = entityStringBuilder.toString();
+			/*	List<Cookie> cookies = cookieStore.getCookies();
 				if (cookies.isEmpty()) {
 					System.out.println("None");
 				} else {
 					for (int i = 0; i < cookies.size(); i++) {
 						System.out.println("- " + cookies.get(i).toString());
 					}
-				}
+				}*/
 				EntityUtils.consume(entity);
 
 			} finally {
@@ -376,7 +378,7 @@ public class HttpClientUtil {
 		} finally {
 			httpclient.close();
 		}
-		return null;
+		return html;
 	}
 	
 	public static void downloadImg(String url, String path) {
