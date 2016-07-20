@@ -12,14 +12,14 @@ public class HttpClientUtilTest {
 		// TODO Auto-generated method stub
 		HttpClientUtil hcu = new HttpClientUtil();
 		BasicCookieStore bcs = new BasicCookieStore();
-		String url = "http://weibo.com/?topnav=1&mod=logo";
+		String url = "https://meizi.us";
 		Map<String, String> param = new HashMap<String, String>();
 		getWeibo(hcu, bcs, url, param);
 	}
 	
 	public static void getWeibo(HttpClientUtil hcu,BasicCookieStore bcs,String url,Map<String, String> param){
 		try {
-			hcu.getClient(bcs, url, param);
+			hcu.getHttpsClient(url);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

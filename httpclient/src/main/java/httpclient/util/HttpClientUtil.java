@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
@@ -20,27 +21,32 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.http.HeaderElement;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.security.cert.X509Certificate;
+
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
-import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContextBuilder;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.util.CharsetUtils;
 import org.apache.http.util.EntityUtils;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 
-import com.sun.xml.internal.messaging.saaj.packaging.mime.Header;
 
+@SuppressWarnings("deprecation")
 public class HttpClientUtil {
 
 	public String postClient(BasicCookieStore cookieStore, String url,
@@ -214,6 +220,101 @@ public class HttpClientUtil {
 			}
 		}
 		return null;
+	}
+	 /**
+     * 创建SSL安全连接
+     *
+     * @return
+     */
+    @SuppressWarnings("deprecation")
+	private static SSLConnectionSocketFactory createSSLConnSocketFactory() {
+        SSLConnectionSocketFactory sslsf = null;
+        try {
+            @SuppressWarnings("deprecation")
+			SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
+
+				public boolean isTrusted(
+						java.security.cert.X509Certificate[] chain,
+						String authType)
+						throws java.security.cert.CertificateException {
+					// TODO Auto-generated method stub
+					return true;
+				}
+            }).build();
+            sslsf = new SSLConnectionSocketFactory(sslContext, new X509HostnameVerifier() {
+
+                public boolean verify(String arg0, SSLSession arg1) {
+                    return true;
+                }
+
+                public void verify(String host, SSLSocket ssl) throws IOException {
+                }
+
+                public void verify(String host, X509Certificate cert) throws SSLException {
+                }
+
+                public void verify(String host, String[] cns, String[] subjectAlts) throws SSLException {
+                }
+
+				public void verify(String host,
+						java.security.cert.X509Certificate cert)
+						throws SSLException {
+					// TODO Auto-generated method stub
+					
+				}
+            });
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        }
+        return sslsf;
+    }
+
+	
+	public String getHttpsClient(String url) throws UnsupportedEncodingException, UnsupportedOperationException, IOException, URISyntaxException{
+		String html = null;
+		 CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(createSSLConnSocketFactory()).build();  
+		 try {
+				RequestBuilder rb = RequestBuilder.get();
+			//	rb.addHeader("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+				/*rb.addHeader("Accept-Encoding","gzip, deflate, sdch");
+				rb.addHeader("Accept-Language","zh-CN,zh;q=0.8");
+				rb.addHeader("Cache-Control","no-cache");
+				rb.addHeader("Connection","keep-alive");
+				rb.addHeader("Host","my.oschina.net");
+				
+				rb.addHeader("Pragma","no-cache");
+				rb.addHeader("Upgrade-Insecure-Requests","1");*/
+//				rb.addHeader("User-Agent","Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.84 Safari/537.36");
+				rb.addHeader("User-Agent","User-Agent	Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)");
+				rb.addHeader("charset", "UTF-8");
+				rb.addHeader("Connection","Keep-Alive");
+				rb.addHeader("Content-Type","text/html, application/xhtml+xml, */*");
+				rb.setUri(new URI(url));
+				// HttpGet httpget = new HttpGet(
+				// "http://localhost:8080/scales/scales/1.htm");
+				HttpUriRequest get = rb.build();
+				CloseableHttpResponse response1 = httpclient.execute(get);
+				try {
+					HttpEntity entity = response1.getEntity();
+					BufferedReader br = new BufferedReader(new InputStreamReader(
+							entity.getContent(), "UTF-8"), 8 * 1024);
+					StringBuilder entityStringBuilder = new StringBuilder();
+					String line = null;
+					while ((line = br.readLine()) != null) {
+						entityStringBuilder.append(line + "/n");
+					}
+					System.out.println(entityStringBuilder.length());
+					System.err.println(entityStringBuilder.toString());
+					html = entityStringBuilder.toString();
+					EntityUtils.consume(entity);
+
+				} finally {
+					response1.close();
+				}
+			} finally {
+				httpclient.close();
+			}
+		 return html;
 	}
 	
 	public String getClient(BasicCookieStore cookieStore, String url,
