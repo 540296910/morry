@@ -43,7 +43,7 @@ public class JsoupTool {
 		Document doc = Jsoup.parse(html);
 		Elements imgs = doc.select("img");
 		for (Element e:imgs) {
-			urls.add(e.attr("src"));
+			urls.add(e.attr("src").replaceAll("_small", ""));
 		}
 		return urls;
 	}
