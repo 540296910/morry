@@ -16,25 +16,28 @@ public class JsoupTool {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		HttpClientUtil hcu = new HttpClientUtil();
-		String url = "https://meizi.us";
-		try {
-//			System.out.println(getImgUrl(hcu.getHttpsClient(url)));
-			for(String img : getImgUrl(hcu.getHttpsClient(url))) {
-				System.out.println(img);
-				ImageDownloader.download(img, "d:\\http\\download\\img");
+		for(int i = 2;i<50;i++){
+			String url = "https://meizi.us/?page="+i;
+			System.err.println(url);
+			try {
+	//			System.out.println(getImgUrl(hcu.getHttpsClient(url)));
+				for(String img : getImgUrl(hcu.getHttpsClient(url))) {
+					System.out.print(img);
+					ImageDownloader.download(img, "F:\\http\\download\\img");
+				}
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (UnsupportedOperationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnsupportedOperationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 	
@@ -43,7 +46,7 @@ public class JsoupTool {
 		Document doc = Jsoup.parse(html);
 		Elements imgs = doc.select("img");
 		for (Element e:imgs) {
-			urls.add(e.attr("src").replaceAll("_small", ""));
+			urls.add(e.attr("src").replace("_small", ""));
 		}
 		return urls;
 	}
