@@ -15,6 +15,7 @@ import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,10 @@ import javax.net.ssl.SSLSocket;
 import javax.security.cert.X509Certificate;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.config.RequestConfig.Builder;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -65,8 +69,10 @@ public class HttpClientUtil {
 					rb.addParameter(key, param.get(key)).setCharset(CharsetUtils.get("UTF-8"));
 				}
 			}
-
-			HttpUriRequest post = rb.build();
+			HttpHost hh = new HttpHost("127.0.0.1", 1080, "http");
+			 RequestConfig config = RequestConfig.custom().setProxy(hh).build();  
+			
+			HttpUriRequest post = rb.setConfig(config).build();
 			CloseableHttpResponse response2 = httpclient.execute(post);
 			try {
 				HttpEntity entity = response2.getEntity();
@@ -508,7 +514,15 @@ public class HttpClientUtil {
 
 	
 	public static void main(String[] args) throws Exception {
-		downloadImg("http://ww4.sinaimg.cn/mw690/9e5389bbjw1f5zop4pzc6j20c80gddg123.jpg", "d:\\http\\download\\img");
+//		downloadImg("http://ww4.sinaimg.cn/mw690/9e5389bbjw1f5zop4pzc6j20c80gddg123.jpg", "d:\\http\\download\\img");
 //		System.out.println(getImgName("http://ww4.sinaimg.cn/mw690/9e5389bbjw1f5zop4pzc6j20c80gddgv.jpg"));
+		HttpClientUtil hcu = new HttpClientUtil();
+		String url = "https://www.tumblr.com/oauth/access_token";
+		Map<String,String> param = new HashMap<String, String>();
+	/*	param.put("x_auth_username", "maolei1990@gmail.com");
+		param.put("x_auth_password", "maolei1990");
+		param.put("x_auth_mode", "client_auth");*/
+		param.put("api_key", "fuiKNFp9vQFvjLNvx4sUwti4Yb5yGutBN4Xh10LXZhhRKjWlV4");
+		hcu.postClient(new BasicCookieStore(), url, param);
 	}
 }
