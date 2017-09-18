@@ -75,6 +75,7 @@ public class HttpClientUtil {
 			HttpUriRequest post = rb.setConfig(config).build();
 			CloseableHttpResponse response2 = httpclient.execute(post);
 			try {
+				
 				HttpEntity entity = response2.getEntity();
 				System.out.println("contentType = " +entity.getContentType());
 				BufferedReader br = new BufferedReader(new InputStreamReader(
