@@ -1,4 +1,4 @@
-package study.concurrent;
+package study.concurrent.countdownlatch;
 
 import java.util.concurrent.CountDownLatch;
 
